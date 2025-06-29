@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -69,7 +70,7 @@ private fun Message(
     Column(
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        Column(
+        Box(
             modifier = modifier
                 .fillMaxWidth()
                 .clip(MaterialTheme.shapes.extraSmall)
@@ -86,12 +87,11 @@ private fun Message(
                     },
                     onLongClick = { onLongClick(payload.id) }
                 )
-                .padding(12.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+                .padding(12.dp)
         ) {
             Text(
                 text = payload.text,
-                color = MaterialTheme.colorScheme.onPrimaryContainer
+                color = MaterialTheme.colorScheme.onPrimary
             )
         }
 
@@ -99,7 +99,7 @@ private fun Message(
             modifier = modifier.fillMaxWidth(),
             text = payload.createdAt.toString(),
             style = MaterialTheme.typography.labelSmall.copy(
-                color = MaterialTheme.colorScheme.onBackground,
+                color = MaterialTheme.colorScheme.secondary,
                 textAlign = TextAlign.End
             )
         )

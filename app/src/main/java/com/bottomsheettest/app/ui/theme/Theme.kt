@@ -1,33 +1,38 @@
 package com.bottomsheettest.app.ui.theme
 
+import android.app.Activity
+import android.content.Context
+import android.view.View
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.lightColorScheme
+import androidx.compose.material3.dynamicDarkColorScheme
+import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
-
-private val LightColorScheme = lightColorScheme(
-    primary = md_theme_light_primary,
-    onPrimary = md_theme_light_onPrimary,
-    primaryContainer = md_theme_light_primaryContainer
-)
-private val DarkColorScheme = darkColorScheme(
-    primary = md_theme_dark_primary,
-    onPrimary = md_theme_dark_onPrimary,
-    primaryContainer = md_theme_dark_primaryContainer
-)
+import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
+import androidx.core.view.WindowCompat
 
 @Composable
 fun BottomSheetTestTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
+    val context: Context = LocalContext.current
+    val view: View = LocalView.current
     val colorScheme =
         if (!darkTheme) {
-            LightColorScheme
+            dynamicLightColorScheme(context)
         } else {
-            DarkColorScheme
+            dynamicDarkColorScheme(context)
         }
+
+    SideEffect {
+        val window = (view.context as Activity).window
+        WindowCompat
+            .getInsetsController(window, view)
+            .isAppearanceLightStatusBars = !darkTheme
+    }
 
     MaterialTheme(
         colorScheme = colorScheme,

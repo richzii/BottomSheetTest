@@ -103,17 +103,19 @@ private fun SaveButton(
 ) {
     val backgroundColor by animateColorAsState(
         if (currentMessage.isEmpty()) {
-            MaterialTheme.colorScheme.surfaceContainerHigh
+            MaterialTheme.colorScheme.secondaryContainer.copy(
+                alpha = 0.5f
+            )
         } else {
-            MaterialTheme.colorScheme.surfaceContainerLowest
+            MaterialTheme.colorScheme.primaryContainer
         }
     )
 
     val iconColor by animateColorAsState(
         if (currentMessage.isEmpty()) {
-            MaterialTheme.colorScheme.inverseOnSurface
+            MaterialTheme.colorScheme.onSecondaryContainer
         } else {
-            MaterialTheme.colorScheme.onSurface
+            MaterialTheme.colorScheme.onSecondaryContainer
         }
     )
 
