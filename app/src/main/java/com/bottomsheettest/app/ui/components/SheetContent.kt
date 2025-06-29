@@ -3,17 +3,16 @@ package com.bottomsheettest.app.ui.components
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
@@ -28,6 +27,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -37,26 +38,27 @@ import com.bottomsheettest.app.R
 @Composable
 internal fun SheetContent(
     modifier: Modifier = Modifier,
+    focusRequester: FocusRequester,
     currentMessage: String,
     onValueChange: (String) -> Unit,
     onSave: () -> Unit
 ) {
     Box(
         modifier = modifier
+            .imePadding()
             .fillMaxSize()
-            .windowInsetsPadding(WindowInsets.navigationBars)
+            .focusable()
     ) {
         Row(
-            modifier = modifier
+            modifier = Modifier
                 .fillMaxWidth()
-                .padding(
-                    horizontal = 12.dp
-                ),
+                .padding(horizontal = 12.dp),
             verticalAlignment = Alignment.Top,
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             MessageInputField(
-                modifier = modifier.weight(1f),
+                modifier = Modifier.weight(1f),
+                focusRequester = focusRequester,
                 currentMessage = currentMessage,
                 onValueChange = onValueChange
             )
@@ -72,13 +74,15 @@ internal fun SheetContent(
 @Composable
 private fun MessageInputField(
     modifier: Modifier,
+    focusRequester: FocusRequester,
     currentMessage: String,
     onValueChange: (String) -> Unit
 ) {
     TextField(
         modifier = modifier
             .semantics { contentDescription = "Message input" }
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .focusRequester(focusRequester),
         value = currentMessage,
         placeholder = {
             Text(

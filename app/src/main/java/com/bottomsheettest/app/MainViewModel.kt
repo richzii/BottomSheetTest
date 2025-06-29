@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.bottomsheettest.app.data.MessageDao
 import com.bottomsheettest.app.models.Message
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -25,35 +27,43 @@ class MainViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(),
             initialValue = emptyList()
         )
-    private val _state: MutableStateFlow<MessageState> = MutableStateFlow(MessageState())
+    private val _viewState:MutableStateFlow<ViewState> = MutableStateFlow(ViewState.ReadAndWrite)
+    private val _state: MutableStateFlow<MessagesState> = MutableStateFlow(MessagesState())
 
-    val state: StateFlow<MessageState> =
-        combine(_state, _message, _messages) { state, message, messages ->
+    val state: StateFlow<MessagesState> =
+        combine(_state, _message, _messages, _viewState) { state, message, messages, viewState ->
             state.copy(
                 messages = messages,
-                currentMessage = message
+                currentMessage = message,
+                viewState = viewState
             )
         }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
-            initialValue = MessageState()
+            initialValue = MessagesState()
         )
 
     fun onEvent(event: MessageEvent) {
         when (event) {
-            is MessageEvent.SetMessage -> {
+            MessageEvent.DeleteMessages -> {
                 viewModelScope.launch {
-                    _message.emit(event.text)
+                    when (val viewState = _viewState.value) {
+                        ViewState.ReadAndWrite,
+                        is ViewState.Edit -> Unit // Should display and log error or warning. Out of scope for this example.
+                        is ViewState.Select -> deleteMessages(viewState.ids)
+                    }
+
+                    _viewState.emit(ViewState.ReadAndWrite)
                 }
             }
 
-            is MessageEvent.SaveMessage -> {
+            MessageEvent.SaveMessage -> {
                 val message: String = state.value.currentMessage
 
                 if (message.isNotEmpty()) {
                     val payload = Message(
                         text = message,
-                        timestamp = System.currentTimeMillis()
+                        createdAt = System.currentTimeMillis()
                     )
 
                     viewModelScope.launch {
@@ -63,11 +73,52 @@ class MainViewModel @Inject constructor(
                 }
             }
 
-            is MessageEvent.DeleteMessage -> {
+            is MessageEvent.SetMessage -> {
                 viewModelScope.launch {
-                    dao.deleteMessage(event.payload)
+                    _message.emit(event.text)
                 }
             }
+
+            is MessageEvent.SelectMessage -> {
+                viewModelScope.launch {
+                    when (val viewState = _viewState.value) {
+                        ViewState.ReadAndWrite,
+                        is ViewState.Edit -> Unit // Should display and log error or warning. Out of scope for this example.
+                        is ViewState.Select -> {
+                            val newList = viewState.ids.toMutableList()
+                            if (event.id in newList) {
+                                newList.remove(event.id)
+                            } else {
+                                newList.add(event.id)
+                            }
+
+                            _viewState.emit(ViewState.Select(newList))
+                        }
+                    }
+                }
+            }
+
+            is MessageEvent.SetViewState -> {
+                viewModelScope.launch {
+                    val messageToEdit: Message? = when (val viewState = event.viewState) {
+                        is ViewState.Edit -> _messages.value.firstOrNull { it.id == viewState.id }
+                        else -> null
+                    }
+
+                    listOf(
+                        async { _viewState.emit(event.viewState) },
+                        async { _message.emit(messageToEdit?.text ?: "") }
+                    ).awaitAll()
+                }
+            }
+        }
+    }
+
+    private suspend fun deleteMessages(ids: List<Int>) {
+        val messagesToDelete = _messages.value.filter { it.id in ids }
+
+        messagesToDelete.forEach { message ->
+            dao.deleteMessage(message)
         }
     }
 }

@@ -8,5 +8,6 @@ data class Message(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
     val text: String,
-    val timestamp: Long
+    val createdAt: Long,
+    val updatedAt: Long? = null
 )

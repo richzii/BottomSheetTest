@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">BottomSheetTest</string>
     <string name="message_placeholder">Type message…</string>
+    <string name="top_bar_title">Messages</string>
+    <string name="top_bar_selected_title">%d selected</string>
+    <string name="top_bar_edit_title">Edit</string>
 </resources>

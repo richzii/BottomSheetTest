@@ -13,6 +13,7 @@
         android:theme="@style/Theme.BottomSheetTest">
         <activity
             android:name=".MainActivity"
+            android:windowSoftInputMode="adjustResize"
             android:exported="true"
             android:theme="@style/Theme.BottomSheetTest">
             <intent-filter>
