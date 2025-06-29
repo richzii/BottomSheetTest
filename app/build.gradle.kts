@@ -52,6 +52,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.adaptive.android)
     ksp(libs.androidx.room.compiler)
     ksp(libs.dagger.hilt.android.compiler)
 

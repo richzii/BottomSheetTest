@@ -1,5 +1,6 @@
 package com.bottomsheettest.app.ui.components
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -76,19 +77,22 @@ internal fun AppTopBar(
                             .padding(end = 12.dp),
                         horizontalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        Icon(
-                            modifier = modifier.clickable(
-                                enabled = viewState.ids.size == 1,
-                                interactionSource = remember { MutableInteractionSource() },
-                                indication = ripple(
-                                    bounded = false,
-                                    radius = 20.dp
+                        AnimatedVisibility(
+                            visible = viewState.ids.size == 1
+                        ) {
+                            Icon(
+                                modifier = modifier.clickable(
+                                    interactionSource = remember { MutableInteractionSource() },
+                                    indication = ripple(
+                                        bounded = false,
+                                        radius = 20.dp
+                                    ),
+                                    onClick = { viewState.ids.firstOrNull()?.let(onEdit) }
                                 ),
-                                onClick = { viewState.ids.firstOrNull()?.let(onEdit) }
-                            ),
-                            imageVector = Icons.Filled.Edit,
-                            contentDescription = "Edit"
-                        )
+                                imageVector = Icons.Filled.Edit,
+                                contentDescription = "Edit"
+                            )
+                        }
 
                         Icon(
                             modifier = modifier.clickable(

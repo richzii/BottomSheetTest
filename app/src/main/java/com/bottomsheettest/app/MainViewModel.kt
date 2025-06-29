@@ -27,7 +27,7 @@ class MainViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(),
             initialValue = emptyList()
         )
-    private val _viewState:MutableStateFlow<ViewState> = MutableStateFlow(ViewState.ReadAndWrite)
+    private val _viewState: MutableStateFlow<ViewState> = MutableStateFlow(ViewState.ReadAndWrite)
     private val _state: MutableStateFlow<MessagesState> = MutableStateFlow(MessagesState())
 
     val state: StateFlow<MessagesState> =
@@ -63,7 +63,20 @@ class MainViewModel @Inject constructor(
                 if (message.isNotEmpty()) {
                     val payload = Message(
                         text = message,
-                        createdAt = System.currentTimeMillis()
+                        id = when (val viewState = _viewState.value) {
+                            is ViewState.Edit -> viewState.id
+                            else -> 0 // New message, so ID should be 0 or a new unique ID.
+                        },
+                        createdAt = when (val viewState = _viewState.value) {
+                            is ViewState.Edit -> {
+                                _messages.value.firstOrNull { it.id == viewState.id }?.createdAt
+                                    ?: System.currentTimeMillis()
+                            }
+
+                            else -> System.currentTimeMillis()
+                        },
+                        updatedAt = System.currentTimeMillis()
+                            .takeIf { _viewState.value is ViewState.Edit }
                     )
 
                     viewModelScope.launch {

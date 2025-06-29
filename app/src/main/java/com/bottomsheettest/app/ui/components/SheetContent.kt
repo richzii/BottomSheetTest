@@ -3,16 +3,20 @@ package com.bottomsheettest.app.ui.components
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
@@ -23,6 +27,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,42 +37,44 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.bottomsheettest.app.R
+import com.bottomsheettest.app.utils.Constants
 
 @Composable
 internal fun SheetContent(
     modifier: Modifier = Modifier,
     focusRequester: FocusRequester,
     currentMessage: String,
+    screenHeight: Int,
     onValueChange: (String) -> Unit,
     onSave: () -> Unit
 ) {
-    Box(
-        modifier = modifier
-            .imePadding()
-            .fillMaxSize()
-            .focusable()
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 12.dp),
-            verticalAlignment = Alignment.Top,
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            MessageInputField(
-                modifier = Modifier.weight(1f),
-                focusRequester = focusRequester,
-                currentMessage = currentMessage,
-                onValueChange = onValueChange
-            )
+    val topPadding: Dp = WindowInsets.systemBars.asPaddingValues().calculateTopPadding()
+    val height: Dp by remember(screenHeight, topPadding) {
+        mutableStateOf(screenHeight.dp - (topPadding * 3)- Constants.APP_BAR_HEIGHT.dp)
+    }
 
-            SaveButton(
-                currentMessage = currentMessage,
-                onClick = onSave
-            )
-        }
+    Row(
+        modifier = modifier
+            .height(height)
+            .padding(
+                horizontal = 12.dp
+            ),
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        MessageInputField(
+            modifier = modifier.weight(1f),
+            focusRequester = focusRequester,
+            currentMessage = currentMessage,
+            onValueChange = onValueChange
+        )
+
+        SaveButton(
+            currentMessage = currentMessage,
+            onClick = onSave
+        )
     }
 }
 
@@ -81,8 +88,12 @@ private fun MessageInputField(
     TextField(
         modifier = modifier
             .semantics { contentDescription = "Message input" }
+            .focusRequester(focusRequester)
+            .windowInsetsPadding(WindowInsets.navigationBars)
             .fillMaxWidth()
-            .focusRequester(focusRequester),
+            .heightIn(
+                max = 200.dp
+            ),
         value = currentMessage,
         placeholder = {
             Text(
