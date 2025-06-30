@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">BottomSheetTest</string>
+    <string name="message_placeholder">Type message…</string>
+    <string name="top_bar_title">Messages</string>
+    <string name="top_bar_selected_title">%d selected</string>
+    <string name="top_bar_edit_title">Edit</string>
+    <string name="removal_alert_title">Are You sure?</string>
+    <string name="removal_alert_subtitle">This action cannot be undone.</string>
+    <string name="removal_alert_positive_action">Delete</string>
+    <string name="removal_alert_negative_action">Cancel</string>
+</resources>
