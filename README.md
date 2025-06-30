@@ -12,6 +12,6 @@
 In this application You can:
 - Write messages to Yourself;
 - Edit message by tapping on it with a long tap;
-- Deleting messages.
+- Delete messages.
 
 Available message actions appear in the top bar of the screen when message selection is enabled.
