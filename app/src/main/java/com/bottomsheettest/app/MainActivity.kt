@@ -18,8 +18,10 @@ import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalConfiguration
@@ -31,6 +33,7 @@ import androidx.window.core.layout.WindowHeightSizeClass
 import androidx.window.core.layout.WindowWidthSizeClass
 import com.bottomsheettest.app.ui.components.AppTopBar
 import com.bottomsheettest.app.ui.components.ListContent
+import com.bottomsheettest.app.ui.components.RemovalAlert
 import com.bottomsheettest.app.ui.components.SheetContent
 import com.bottomsheettest.app.ui.theme.BottomSheetTestTheme
 import com.bottomsheettest.app.utils.Constants
@@ -78,7 +81,7 @@ class MainActivity : ComponentActivity() {
                     }
                 )
             }
-
+            var showDialogState by remember { mutableStateOf(false) }
 
             SideEffect {
                 focusRequester.requestFocus()
@@ -114,9 +117,7 @@ class MainActivity : ComponentActivity() {
                                 viewModel.onEvent(MessageEvent.SetViewState(ViewState.Edit(id)))
                                 focusRequester.requestFocus()
                             },
-                            onDelete = {
-                                viewModel.onEvent(MessageEvent.DeleteMessages)
-                            },
+                            onDelete = { showDialogState = true },
                             onResetViewMode = {
                                 viewModel.onEvent(MessageEvent.SetViewState(ViewState.ReadAndWrite))
                             }
@@ -148,6 +149,16 @@ class MainActivity : ComponentActivity() {
                                 )
                             }
                         )
+
+                        if (showDialogState) {
+                            RemovalAlert(
+                                onDelete = {
+                                    viewModel.onEvent(MessageEvent.DeleteMessages)
+                                    showDialogState = false
+                                },
+                                onDismiss = { showDialogState = false }
+                            )
+                        }
                     }
                 )
             }
